@@ -2,6 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
+import userRoutes from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -32,6 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
+
+app.use("/api/v1", userRoutes);
 
 mongoose
   .connect(MONGODB_URI)
