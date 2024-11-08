@@ -3,7 +3,7 @@ import User from "../models/userModel";
 
 const getAllUsers = async () => {
   try {
-    const users = await User.find({ role: "player" });
+    const users = await User.find({ role: "player" }).sort({ points: -1 });
     return users;
   } catch (err) {
     console.error(err);
