@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-
-import { getAllUsers, createUser, loginUser } from "../services/userServices";
+import {
+  createUser,
+  getAllUsers,
+  loginUser,
+  userProfiles,
+} from "../services/userServices";
 
 import { verifyToken } from "../utils/authUtils";
 
@@ -75,4 +79,55 @@ const loginUserController = async (
       data: [],
     });
   }
+};
+const getProfileController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({
+      success: "false",
+      message: "No token provided",
+    });
+  }
+
+  const { valid, decoded, error } = verifyToken(token);
+  if (!valid) {
+    return res.status(401).json({
+      success: "false",
+      message: "Invalid token",
+      error,
+    });
+  }
+
+  const email = (decoded as any).email;
+  try {
+    const userProfile = await userProfiles(email);
+    if (userProfile.success === "false") {
+      return res.status(500).json({
+        success: "false",
+        message: userProfile.message,
+      });
+    }
+    return res.status(200).json({
+      success: "true",
+      data: userProfile.data,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: "false",
+      message: "Failed to retrieve profile",
+      data: [],
+    });
+  }
+};
+
+export {
+  createUsersController,
+  getAllUsersController,
+  loginUserController,
+  getProfileController,
 };
