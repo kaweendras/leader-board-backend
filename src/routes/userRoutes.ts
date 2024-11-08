@@ -35,4 +35,24 @@ router.get(
   userController.getProfileController
 );
 
+/**
+ * GET api/v1/users/getUserByEmail
+ * Get user Email
+ */
+router.get(
+  "/users/getUserByEmail",
+  // authMiddleware,
+  userController.getUserByEmailController
+);
+
+/**
+ * POST api/v1/users/updatePoints
+ * Update user points
+ */
+router.post(
+  "/users/updatePoints",
+  // authMiddleware,
+  userController.updateUserPointsController
+);
+
 export default router;
