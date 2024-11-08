@@ -1,15 +1,16 @@
-import * as userRepository from "../repositories/usersRepository";
-import { IUser } from "../models/userModel";
 import bcrypt from "bcrypt";
 import User from "../models/userModel";
-import * as dotenv from "dotenv";
+import { IUser } from "../models/userModel";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import * as userRepository from "../repositories/userRepository";
 
 dotenv.config();
 
 const saltRounds = 10;
 const jwtSecret = process.env.JWT_SECRET as string;
 
+// Get all user
 const getAllUsers = async () => {
   try {
     const user = await userRepository.getAllUsers();
@@ -31,9 +32,9 @@ const createUser = async (userData: IUser) => {
     });
 
     // Check if the user already exists
-    const existing = await userRepository.getUserByEmail(user.email);
+    const existing = await userRepository.findUserByEmail(user.email);
     if (existing) {
-      console.log(`User already exists for the email ${user.email}`);
+      console.error(`User already exists for the email ${user.email}`);
       return { success: "false", message: "User already exists" };
     }
 
@@ -42,7 +43,7 @@ const createUser = async (userData: IUser) => {
     console.log(`User added successfully: ${user.email}`);
     return { success: "true", data: user, message: "User added successfully" };
   } catch (err) {
-    console.error("Failed to add user", err);
+    console.error(`Failed to add user: ${err}`);
     return { success: "false", message: "Failed to add user" };
   }
 };
@@ -50,7 +51,7 @@ const createUser = async (userData: IUser) => {
 const loginUser = async (email: string, password: string) => {
   try {
     // Find the user by email
-    const user = await userRepository.getUserByEmail(email);
+    const user = await userRepository.findUserByEmail(email);
     if (!user) {
       console.log(`User not found for the email ${email}`);
       return { success: "false", message: "User not found" };
@@ -88,9 +89,27 @@ const loginUser = async (email: string, password: string) => {
     };
   } catch (err) {
     console.error(`Failed to login with: ${err}`);
-    console.error(err);
     return { success: "false", message: "Login failed" };
   }
 };
 
-export { getAllUsers, createUser, loginUser };
+const userProfiles = async (email: string) => {
+  try {
+    const user = await userRepository.findUserByEmail(email);
+
+    if (!user) {
+      console.log(`User not found for the email ${email}`);
+      return { success: "false", message: "User not found" };
+    }
+
+    const userObj = user.toObject();
+    const { password, ...userWithoutPassword } = userObj;
+
+    return { success: "true", data: userWithoutPassword };
+  } catch (err) {
+    console.error(`Failed to get user profile: ${err}`);
+    return { success: "false", message: "Failed to get user profile" };
+  }
+};
+
+export { createUser, getAllUsers, loginUser, userProfiles };
