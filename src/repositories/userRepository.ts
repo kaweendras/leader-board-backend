@@ -3,7 +3,7 @@ import User from "../models/userModel";
 
 const getAllUsers = async () => {
   try {
-    const users = await User.find();
+    const users = await User.find({ role: "player" });
     return users;
   } catch (err) {
     console.error(err);
@@ -36,4 +36,18 @@ const addUser = async (userData: IUser) => {
   }
 };
 
-export { getAllUsers, findUserByEmail, addUser };
+const updatePointsByEmail = async (email: string, points: number) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { email },
+      { points },
+      { new: true }
+    );
+    return user;
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to update user points in the database");
+  }
+};
+
+export { getAllUsers, findUserByEmail, addUser, updatePointsByEmail };
