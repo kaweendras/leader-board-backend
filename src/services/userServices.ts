@@ -112,4 +112,24 @@ const userProfiles = async (email: string) => {
   }
 };
 
-export { createUser, getAllUsers, loginUser, userProfiles };
+const updatePoints = async (email: string, points: number) => {
+  try {
+    const user = await userRepository.updatePointsByEmail(email, points);
+    if (!user) {
+      console.log(`User not found for the email ${email}`);
+      return { success: "false", message: "User not found", data: [] };
+    }
+
+    console.log(`Points updated successfully for the email ${email}`);
+    return {
+      success: "true",
+      message: "Points updated successfully",
+      data: user,
+    };
+  } catch (err) {
+    console.error(`Failed to update points: ${err}`);
+    return { success: "false", message: "Failed to update points", data: [] };
+  }
+};
+
+export { createUser, getAllUsers, loginUser, userProfiles, updatePoints };
